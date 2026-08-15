@@ -7,15 +7,23 @@ import HoverExpandPanels from "@/components/HoverExpendPanels";
 import DragCarousel from "@/components/DragCarousel";
 import ServiceCardSection from "@/components/ServiceCardSection";
 import PortfolioCarousel from "@/components/ProjectCarousel";
+import { connectDB } from "@/lib/utils/db";
+import SiteContent from "@/lib/models/SiteContent";
+import type { HeroProps } from "@/types/portfolios";
 
+async function getHeroContent(): Promise<HeroProps | undefined> {
+  await connectDB();
+  const doc = await SiteContent.findOne({ key: "hero" }).lean();
+  return doc?.fields as HeroProps | undefined;
+}
 
+export default async function Home() {
+  const heroContent = await getHeroContent();
 
-
-export default function Home() {
   return (
     <div className="relative">
       <TopNavBar />
-      <div className="mt-20"><Hero /></div>
+      <div className="mt-20"><Hero {...heroContent} /></div>
 
       <DragCarousel
         items={[
