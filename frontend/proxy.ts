@@ -1,24 +1,32 @@
-// middleware.ts
+import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-export async function proxy(req: NextRequest) {
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-  const isLoggedIn = !!token;
-  const isLoginPage = req.nextUrl.pathname === "/dashboard/login";
 
-  if (!isLoggedIn && !isLoginPage) {
-    return NextResponse.redirect(new URL("/dashboard/login", req.nextUrl));
+  const isLoginPage = pathname === "/dashboard/login";
+
+  if (!token && pathname.startsWith("/dashboard") && !isLoginPage) {
+    const loginUrl = new URL("/dashboard/login", req.url);
+    return NextResponse.redirect(loginUrl);
   }
 
-  if (isLoggedIn && isLoginPage) {
-    return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
+  if (token && isLoginPage) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  // Any write to the content API must be authenticated. GETs stay public
+  // (the public site reads content), only mutate methods are gated here.
+  if (pathname.startsWith("/api/content") && req.method !== "GET") {
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/api/content/:path*"],
 };
