@@ -9,7 +9,7 @@ export default async function DashboardLayout({
 }) {
   const session = await getServerSession(authOptions);
 
-  // No session: this is /dashboard/login (or middleware hasn't redirected yet).
+  // No session: this is /dashboard/login (or proxy hasn't redirected yet).
   // Render bare — no shell chrome on the login screen.
   if (!session) return <>{children}</>;
 

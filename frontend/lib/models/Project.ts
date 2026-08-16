@@ -5,7 +5,7 @@ export interface IProject {
  client: string;
  description: string;
  images: string[];
- serviceRef?: Types.ObjectId;
+ serviceRef?: Types.ObjectId;   
  order: number;
  published: boolean;
 }

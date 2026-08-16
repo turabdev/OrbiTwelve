@@ -15,7 +15,7 @@ export async function GET(
   return NextResponse.json(content);
 }
 
-// Auth check for this happens in middleware.ts (write access to
+// Auth check for this happens in proxy.ts (write access to
 // /api/content/* requires a valid session). Upserts by key so the
 // dashboard can save even before a doc exists for that key.
 export async function PUT(

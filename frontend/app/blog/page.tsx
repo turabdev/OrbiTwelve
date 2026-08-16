@@ -2,9 +2,20 @@ import TopNavBar from "@/components/TopNavBar";
 import Footer from "@/components/footer";
 import BlogFeatured from "@/components/BlogFeatured";
 import BlogCard from "@/components/BlogCard";
+import Hero from "@/components/Hero";
 import { posts } from "@/app/lib/dummy-posts";
+import { connectDB } from "@/lib/utils/db";
+import SiteContent from "@/lib/models/SiteContent";
+import type { HeroProps } from "@/types/portfolios";
 
-export default function Blog() {
+async function getHeroContent(): Promise<Partial<HeroProps>> {
+  await connectDB();
+  const doc = await SiteContent.findOne({ key: "blog-hero" }).lean();
+  return (doc?.fields ?? {}) as Partial<HeroProps>;
+}
+
+export default async function Blog() {
+  const heroContent = await getHeroContent();
   const featured = posts.find((p) => p.featured) ?? posts[0];
   const rest = posts.filter((p) => p.slug !== featured.slug);
 
@@ -12,7 +23,9 @@ export default function Blog() {
     <>
       <TopNavBar />
 
-      <section className="mt-20 px-4 pt-4">
+      <div className="mt-20"><Hero {...heroContent} /></div>
+
+      <section className="px-4 pt-4">
         <div className="mx-auto max-w-360">
           <div className="mb-10 px-2 pt-6 md:px-4">
             <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">

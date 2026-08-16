@@ -1,11 +1,24 @@
 import TopNavBar from "@/components/TopNavBar";
 import Footer from "@/components/footer";
 import ContactForm from "@/components/ContactForm";
+import Hero from "@/components/Hero";
+import { connectDB } from "@/lib/utils/db";
+import SiteContent from "@/lib/models/SiteContent";
+import type { HeroProps } from "@/types/portfolios";
 
-export default function Contact() {
+async function getHeroContent(): Promise<Partial<HeroProps>> {
+  await connectDB();
+  const doc = await SiteContent.findOne({ key: "contact-hero" }).lean();
+  return (doc?.fields ?? {}) as Partial<HeroProps>;
+}
+
+export default async function Contact() {
+  const heroContent = await getHeroContent();
+
   return (
     <>
       <TopNavBar />
+      <div className="mt-20"><Hero {...heroContent} /></div>
       <section className="px-6 py-20 md:py-28">
         <div className="mx-auto max-w-6xl">
           <div className="relative overflow-hidden rounded-[2.5rem] bg-foreground px-8 py-16 text-background md:px-16 md:py-24">

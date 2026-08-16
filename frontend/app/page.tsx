@@ -13,7 +13,7 @@ import type { HeroProps } from "@/types/portfolios";
 
 async function getHeroContent(): Promise<HeroProps | undefined> {
   await connectDB();
-  const doc = await SiteContent.findOne({ key: "hero" }).lean();
+  const doc = await SiteContent.findOne({ key: "home-hero" }).lean();
   return doc?.fields as HeroProps | undefined;
 }
 
