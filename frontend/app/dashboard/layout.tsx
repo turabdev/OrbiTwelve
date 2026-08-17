@@ -1,6 +1,13 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/utils/auth";
+import { Space_Grotesk } from "next/font/google";
 import DashboardShell from "@/components/DashboardShell";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
 
 export default async function DashboardLayout({
   children,
@@ -9,17 +16,19 @@ export default async function DashboardLayout({
 }) {
   const session = await getServerSession(authOptions);
 
-  // No session: this is /dashboard/login (or proxy hasn't redirected yet).
-  // Render bare — no shell chrome on the login screen.
-  if (!session) return <>{children}</>;
+  if (!session) {
+    return <div className={spaceGrotesk.className}>{children}</div>;
+  }
 
   return (
-    <DashboardShell
-      role={session.user.role}
-      userName={session.user.name ?? "User"}
-      userEmail={session.user.email ?? ""}
-    >
-      {children}
-    </DashboardShell>
+    <div className={spaceGrotesk.className}>
+      <DashboardShell
+        role={session.user.role}
+        userName={session.user.name ?? "User"}
+        userEmail={session.user.email ?? ""}
+      >
+        {children}
+      </DashboardShell>
+    </div>
   );
 }

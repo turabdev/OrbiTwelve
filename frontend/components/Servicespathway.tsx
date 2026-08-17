@@ -3,14 +3,15 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import OrbitImages from "./OrbitImages";
 
 gsap.registerPlugin(ScrollTrigger);
 
 // ── NOTE ───────────────────────────────────────────────────────────────
 // If SmoothScrollProvider.tsx wraps scroll (Lenis or similar), ScrollTrigger
 // needs a scrollerProxy hookup or the pin will desync from the visible
-// scroll position. Paste what's in SmoothScrollProvider.tsx and I'll give
-// you the exact glue — don't skip this, it's the #1 way this breaks.
+// scroll position. Confirmed working via lenis.on("scroll", ScrollTrigger.update)
+// + gsap.ticker — see SmoothScrollProvider.tsx.
 // ──────────────────────────────────────────────────────────────────────
 
 interface ProjectCard {
@@ -19,11 +20,16 @@ interface ProjectCard {
   href: string;
 }
 
+interface ServiceTool {
+  name: string;
+  logoUrl: string;
+}
+
 interface ServiceNode {
   id: string;
   title: string;
   description: string;
-  tools: string[];
+  tools: ServiceTool[]; // was string[] — restructured for CMS pass (admin pastes logoUrl per tool)
   projects: [ProjectCard, ProjectCard, ...ProjectCard[]]; // min 2
 }
 
@@ -33,7 +39,13 @@ const services: ServiceNode[] = [
     title: "Web Development",
     description:
       "We build fast, scalable web applications from the ground up — frontend to backend, architected to grow with the product.",
-    tools: ["Next.js", "React", "TypeScript", "Node.js", "Tailwind CSS"],
+    tools: [
+      { name: "Next.js", logoUrl: "https://cdn.simpleicons.org/nextdotjs/FFFFFF" },
+      { name: "React", logoUrl: "https://static.cdnlogo.com/logos/r/85/react.svg" },
+      { name: "TypeScript", logoUrl: "https://cdn.simpleicons.org/typescript/3178C6" },
+      { name: "Node.js", logoUrl: "https://cdn.simpleicons.org/nodedotjs/5FA04E" },
+      { name: "Tailwind CSS", logoUrl: "https://cdn.simpleicons.org/tailwindcss/06B6D4" },
+    ],
     projects: [
       {
         title: "Client Portal Rebuild",
@@ -52,7 +64,16 @@ const services: ServiceNode[] = [
     title: "Cybersecurity & Intelligence",
     description:
       "We assess, harden, and monitor infrastructure — identifying exposure before it becomes an incident.",
-    tools: ["Nmap", "Burp Suite", "Metasploit", "Wireshark", "OSINT tooling"],
+    tools: [
+      { name: "Nmap", logoUrl: "https://cdn.simpleicons.org/nmap/FFFFFF" },
+      { name: "Wireshark", logoUrl: "https://cdn.simpleicons.org/wireshark/1679A7" },
+      // PLACEHOLDER — Burp Suite, Metasploit, and OSINT tooling have no
+      // Simple Icons entry as of this pass. Swap these two logoUrls for
+      // real assets (Cloudinary upload or official brand asset) before
+      // shipping, or add via the CMS once that's wired.
+      { name: "Burp Suite", logoUrl: "https://cdn.simpleicons.org/portswigger/FF6633" },
+      { name: "Metasploit", logoUrl: "https://cdn.simpleicons.org/metasploit/2596CD" },
+    ],
     projects: [
       {
         title: "Infrastructure Pentest",
@@ -71,7 +92,12 @@ const services: ServiceNode[] = [
     title: "SEO Management",
     description:
       "We drive organic visibility through technical SEO, content strategy, and ongoing performance measurement.",
-    tools: ["Google Search Console", "Ahrefs", "Screaming Frog", "Lighthouse"],
+    tools: [
+      { name: "Google Search Console", logoUrl: "https://cdn.simpleicons.org/googlesearchconsole/458CF5" },
+      { name: "Ahrefs", logoUrl: "https://cdn.simpleicons.org/ahrefs/FF7A50" },
+      { name: "Screaming Frog", logoUrl: "https://cdn.simpleicons.org/screamingfrog/000000" },
+      { name: "Lighthouse", logoUrl: "https://cdn.simpleicons.org/lighthouse/F44B21" },
+    ],
     projects: [
       {
         title: "Organic Traffic Turnaround",
@@ -85,181 +111,12 @@ const services: ServiceNode[] = [
       },
     ],
   },
-  // ── PLACEHOLDER — tools & projects below are NOT from the client PDF ──
-  // The PDF only detailed Web Development, Cybersecurity & Intelligence,
-  // and SEO Management. These 9 entries use the correct titles/order from
-  // the PDF's service list but generic tools/copy. Swap before shipping.
-  {
-    id: "social-media-management",
-    title: "Social Media Management",
-    description:
-      "We plan, produce, and run content calendars that keep brands consistent and visible across platforms.",
-    tools: ["Meta Business Suite", "Buffer", "Canva", "Sprout Social"],
-    projects: [
-      {
-        title: "PLACEHOLDER — Project 1",
-        summary: "Replace with a real Social Media Management project.",
-        href: "/projects/placeholder-1",
-      },
-      {
-        title: "PLACEHOLDER — Project 2",
-        summary: "Replace with a real Social Media Management project.",
-        href: "/projects/placeholder-2",
-      },
-    ],
-  },
-  {
-    id: "digital-marketing",
-    title: "Digital Marketing",
-    description:
-      "We run paid and owned campaigns across channels, tying spend to measurable acquisition outcomes.",
-    tools: ["Google Ads", "Meta Ads Manager", "HubSpot", "Google Analytics"],
-    projects: [
-      {
-        title: "PLACEHOLDER — Project 1",
-        summary: "Replace with a real Digital Marketing project.",
-        href: "/projects/placeholder-3",
-      },
-      {
-        title: "PLACEHOLDER — Project 2",
-        summary: "Replace with a real Digital Marketing project.",
-        href: "/projects/placeholder-4",
-      },
-    ],
-  },
-  {
-    id: "android-app-development",
-    title: "Android App Development",
-    description:
-      "We design and build native Android applications, from prototype through Play Store release.",
-    tools: ["Kotlin", "Jetpack Compose", "Android Studio", "Firebase"],
-    projects: [
-      {
-        title: "PLACEHOLDER — Project 1",
-        summary: "Replace with a real Android App Development project.",
-        href: "/projects/placeholder-5",
-      },
-      {
-        title: "PLACEHOLDER — Project 2",
-        summary: "Replace with a real Android App Development project.",
-        href: "/projects/placeholder-6",
-      },
-    ],
-  },
-  {
-    id: "graphic-designing",
-    title: "Graphic Designing",
-    description:
-      "We produce brand identity, marketing collateral, and visual systems that hold up across every touchpoint.",
-    tools: ["Adobe Illustrator", "Photoshop", "Figma", "InDesign"],
-    projects: [
-      {
-        title: "PLACEHOLDER — Project 1",
-        summary: "Replace with a real Graphic Designing project.",
-        href: "/projects/placeholder-7",
-      },
-      {
-        title: "PLACEHOLDER — Project 2",
-        summary: "Replace with a real Graphic Designing project.",
-        href: "/projects/placeholder-8",
-      },
-    ],
-  },
-  {
-    id: "video-editing",
-    title: "Video Editing",
-    description:
-      "We cut and grade video for social, ads, and brand content — scripted through final export.",
-    tools: ["Premiere Pro", "After Effects", "DaVinci Resolve"],
-    projects: [
-      {
-        title: "PLACEHOLDER — Project 1",
-        summary: "Replace with a real Video Editing project.",
-        href: "/projects/placeholder-9",
-      },
-      {
-        title: "PLACEHOLDER — Project 2",
-        summary: "Replace with a real Video Editing project.",
-        href: "/projects/placeholder-10",
-      },
-    ],
-  },
-  {
-    id: "academic-research-writing",
-    title: "Academic Research Writing",
-    description:
-      "We support research and writing work with structured, sourced, citation-accurate output.",
-    tools: ["Zotero", "Grammarly", "Turnitin", "Google Scholar"],
-    projects: [
-      {
-        title: "PLACEHOLDER — Project 1",
-        summary: "Replace with a real Academic Research Writing project.",
-        href: "/projects/placeholder-11",
-      },
-      {
-        title: "PLACEHOLDER — Project 2",
-        summary: "Replace with a real Academic Research Writing project.",
-        href: "/projects/placeholder-12",
-      },
-    ],
-  },
-  {
-    id: "lead-generation",
-    title: "Lead Generation",
-    description:
-      "We build pipelines that identify, qualify, and route prospects into sales-ready leads.",
-    tools: ["Apollo.io", "LinkedIn Sales Navigator", "HubSpot CRM"],
-    projects: [
-      {
-        title: "PLACEHOLDER — Project 1",
-        summary: "Replace with a real Lead Generation project.",
-        href: "/projects/placeholder-13",
-      },
-      {
-        title: "PLACEHOLDER — Project 2",
-        summary: "Replace with a real Lead Generation project.",
-        href: "/projects/placeholder-14",
-      },
-    ],
-  },
-  {
-    id: "infrastructure-operations",
-    title: "Infrastructure & Operations",
-    description:
-      "We design, deploy, and maintain the infrastructure that keeps products running reliably at scale.",
-    tools: ["AWS", "Docker", "Terraform", "GitHub Actions"],
-    projects: [
-      {
-        title: "PLACEHOLDER — Project 1",
-        summary: "Replace with a real Infrastructure & Operations project.",
-        href: "/projects/placeholder-15",
-      },
-      {
-        title: "PLACEHOLDER — Project 2",
-        summary: "Replace with a real Infrastructure & Operations project.",
-        href: "/projects/placeholder-16",
-      },
-    ],
-  },
-  {
-    id: "secure-development",
-    title: "Secure Development",
-    description:
-      "We build software with security baked into the development lifecycle, not bolted on after.",
-    tools: ["OWASP ZAP", "Snyk", "SonarQube", "GitHub Advanced Security"],
-    projects: [
-      {
-        title: "PLACEHOLDER — Project 1",
-        summary: "Replace with a real Secure Development project.",
-        href: "/projects/placeholder-17",
-      },
-      {
-        title: "PLACEHOLDER — Project 2",
-        summary: "Replace with a real Secure Development project.",
-        href: "/projects/placeholder-18",
-      },
-    ],
-  },
+  // The 9 placeholder services from the previous version (Social Media
+  // Management, Digital Marketing, Android App Development, Graphic
+  // Designing, Video Editing, Academic Research Writing, Lead Generation,
+  // Infrastructure & Operations, Secure Development) have been DROPPED
+  // per decision — not migrated. Re-add via the dashboard once the CMS
+  // pass lands, with real client data.
 ];
 
 // Gradient stops, top to bottom, per the client spec. Kept as a constant so
@@ -271,6 +128,7 @@ export default function ServicesPathway() {
   const pathRef = useRef<SVGPathElement>(null);
   const gradientRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const orbitRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -284,22 +142,15 @@ export default function ServicesPathway() {
       // inflates the page's real scrollable height beyond what `section`
       // measures on its own. The path-draw and gradient scrubs use
       // `end: "bottom bottom"` against `section` — if that gets computed
-      // BEFORE the pins exist, it locks in the smaller pre-pin height,
-      // and both animations finish (clamp to their end value) way before
-      // the user has actually scrolled past all 12 pinned panels. That's
-      // why the gradient was reading as "stuck at the bottom color" —
-      // it hit progress=1 early and just sat there for the rest of the
-      // scroll. Same bug was silently affecting the path draw too.
-      //
+      // BEFORE the pins exist, it locks in the smaller pre-pin height.
       // Fix: create the pins FIRST, then the section-wide scrubs, then
       // force ScrollTrigger.refresh() so `bottom bottom` recalculates
       // against the final, pin-inflated page height.
 
-      // Pin each service node full-screen while its content animates in
       nodeRefs.current.forEach((node, i) => {
         if (!node) return;
 
-        const tools = node.querySelectorAll("[data-tool]");
+        const orbit = orbitRefs.current[i];
         const cards = node.querySelectorAll("[data-project-card]");
         const copy = node.querySelectorAll("[data-copy]");
 
@@ -320,28 +171,36 @@ export default function ServicesPathway() {
           opacity: 0,
           stagger: 0.15,
           duration: 0.4,
-        })
-          .from(
-            tools,
+        });
+
+        // Tool logos now live inside OrbitImages, which has no per-item
+        // DOM hook for GSAP to grab individually (motion/react owns each
+        // logo's position via its own internal animation loop). Replaced
+        // the old per-pill stagger-in with a single fade+scale-in on the
+        // whole ring container as one timeline step.
+        if (orbit) {
+          tl.from(
+            orbit,
             {
-              scale: 0,
+              scale: 0.85,
               opacity: 0,
-              stagger: 0.08,
-              duration: 0.3,
-              ease: "back.out(2)",
+              duration: 0.5,
+              ease: "power2.out",
             },
             "-=0.2"
-          )
-          .from(
-            cards,
-            {
-              y: 60,
-              opacity: 0,
-              stagger: 0.15,
-              duration: 0.4,
-            },
-            "-=0.15"
           );
+        }
+
+        tl.from(
+          cards,
+          {
+            y: 60,
+            opacity: 0,
+            stagger: 0.15,
+            duration: 0.4,
+          },
+          "-=0.15"
+        );
       });
 
       const pathLength = path.getTotalLength();
@@ -350,7 +209,6 @@ export default function ServicesPathway() {
         strokeDashoffset: pathLength,
       });
 
-      // Draw the path across the full scroll range of the section
       gsap.to(path, {
         strokeDashoffset: 0,
         ease: "none",
@@ -362,9 +220,6 @@ export default function ServicesPathway() {
         },
       });
 
-      // Scrub the gradient across the SAME scroll range as the path draw,
-      // so both stay in sync. --gradient-progress goes 0 → 1 and the CSS
-      // linear-gradient below reads it to shift the color stops.
       gsap.fromTo(
         gradient,
         { "--gradient-progress": 0 },
@@ -381,21 +236,14 @@ export default function ServicesPathway() {
       );
 
       // All ScrollTrigger instances now exist (pins + the two section-wide
-      // scrubs). Force a recalculation of every trigger's start/end against
-      // the FINAL page geometry, now that the pins have added their
-      // scroll-distance spacers. Without this, "bottom bottom" above locks
-      // to the pre-pin height and both scrubs finish scrolling way too early.
-      //
-      // refresh(true) — not the bare call — because GSAP's own docs note
-      // the browser doesn't always reflect DOM/layout changes immediately;
-      // the `true` arg waits ~1 rAF tick (up to ~200ms) so pin-spacer
-      // geometry is fully settled before positions are recalculated.
+      // scrubs). Force a recalculation against the FINAL page geometry.
+      // refresh(true) — not the bare call — waits ~1 rAF tick so pin-spacer
+      // geometry is fully settled before positions recalculate.
       ScrollTrigger.refresh(true);
     }, section);
 
     return () => ctx.revert();
   }, []);
-
 
   return (
     <section
@@ -403,12 +251,6 @@ export default function ServicesPathway() {
       className="relative w-full"
       style={{ background: "var(--background)" }}
     >
-      {/*
-        Fixed backdrop layer, not absolute — this needs to stay put behind
-        the pinned panels and shift color as the USER scrolls the whole
-        section, not scroll away with any single panel. z-index keeps it
-        behind both the path and the service content.
-      */}
       <div
         ref={gradientRef}
         className="pointer-events-none fixed inset-0 -z-10"
@@ -424,7 +266,6 @@ export default function ServicesPathway() {
         }
       />
 
-      {/* Winding path, absolutely positioned behind the service nodes */}
       <svg
         className="pointer-events-none absolute left-1/2 top-0 h-full w-40 -translate-x-1/2"
         viewBox={`0 0 200 ${services.length * 1000}`}
@@ -449,38 +290,54 @@ export default function ServicesPathway() {
           id={service.id}
           className="relative flex min-h-screen w-full items-center justify-center px-6 md:px-16"
         >
-          <div className="mx-auto grid w-full max-w-5xl gap-10 md:grid-cols-2 md:items-center">
-            {/* Copy + tools */}
-            <div>
-              <p data-copy className="mb-2 text-sm uppercase tracking-widest opacity-60">
-                Service {String(i + 1).padStart(2, "0")}
-              </p>
-              <h3 data-copy className="mb-4 text-3xl font-semibold md:text-4xl">
-                {service.title}
-              </h3>
-              <p data-copy className="mb-6 max-w-md opacity-80">
-                {service.description}
-              </p>
-
-              <div className="flex flex-wrap gap-2">
-                {service.tools.map((tool) => (
-                  <span
-                    key={tool}
-                    data-tool
-                    className="rounded-full px-3 py-1 text-sm"
-                    style={{
-                      background: "var(--color-dark-panel)",
-                      border: "1px solid var(--color-accent)",
-                    }}
-                  >
-                    {tool}
-                  </span>
-                ))}
-              </div>
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
+            {/* Ring + nested copy — the service is the epicenter, tool
+                logos orbit around its title/description. Sized down from
+                the original radiusX=700/radiusY=340 spec (full-page-width
+                sizing) to fit one panel's content width. */}
+            <div
+              ref={(el) => {
+                orbitRefs.current[i] = el;
+              }}
+              className="mx-auto flex justify-center [&_img]:transition-transform [&_img]:duration-300 [&_img:hover]:scale-[3]"
+            >
+              <OrbitImages
+                images={service.tools.map((t) => t.logoUrl)}
+                altPrefix={`${service.title} tool logo`}
+                shape="ellipse"
+                radiusX={380}
+                radiusY={180}
+                rotation={-32}
+                duration={30}
+                itemSize={120}
+                responsive
+                direction="normal"
+                fill
+                showPath
+                paused={false}
+                centerContent={
+                  <div className="max-w-xs px-4 text-center">
+                    <p
+                      data-copy
+                      className="mb-2 text-sm uppercase tracking-widest opacity-60"
+                    >
+                      Service {String(i + 1).padStart(2, "0")}
+                    </p>
+                    <h3 data-copy className="mb-3 text-2xl font-semibold md:text-3xl">
+                      {service.title}
+                    </h3>
+                    <p data-copy className="text-sm opacity-80">
+                      {service.description}
+                    </p>
+                  </div>
+                }
+              />
             </div>
 
-            {/* Project cards — min 2 per service, enforced by ServiceNode type */}
-            <div className="flex flex-col gap-4">
+            {/* Project cards — moved to their own full-width row below the
+                ring, per layout decision (grid collapsed from 2-col to
+                stacked once cards moved out of the copy column). */}
+            <div className="grid gap-4 mt-20 md:grid-cols-2">
               {service.projects.map((project) => (
                 <a
                   key={project.title}
@@ -511,12 +368,15 @@ export default function ServicesPathway() {
 function buildWindingPath(count: number): string {
   const segmentHeight = 1000;
   let d = `M 100 0`;
+
   for (let i = 0; i < count; i++) {
     const midY = i * segmentHeight + segmentHeight / 2;
     const endY = (i + 1) * segmentHeight;
-    const swing = i % 2 === 0 ? 170 : 30; // alternate right/left
+    const swing = i % 2 === 0 ? 170 : 30;
     d += ` C 100 ${midY - 150}, ${swing} ${midY}, ${swing} ${midY + 50}`;
     d += ` S 100 ${endY - 100}, 100 ${endY}`;
   }
+
   return d;
+  
 }
