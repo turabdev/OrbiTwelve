@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/utils/db";
 import SiteContent from "@/lib/models/SiteContent";
 import type { HeroProps } from "@/types/portfolios";
 import ServicesView from "./ServicesView";
+import ServicesPathway from "@/components/Servicespathway";
 
 async function getHeroContent(): Promise<Partial<HeroProps>> {
   await connectDB();
@@ -11,5 +12,7 @@ async function getHeroContent(): Promise<Partial<HeroProps>> {
 
 export default async function Services() {
   const heroContent = await getHeroContent();
-  return <ServicesView heroContent={heroContent} />;
+  return <><ServicesView heroContent={heroContent} /><ServicesPathway services={[]} /></>
+  
+  ;
 }

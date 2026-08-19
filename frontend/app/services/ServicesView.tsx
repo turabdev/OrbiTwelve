@@ -7,6 +7,7 @@ import { Users, Sparkles, Check } from "lucide-react";
 import { ArrowUpRight } from "lucide-react";
 import Ser from "@/components/Servicespathway";
 import type { HeroProps } from "@/types/portfolios";
+import type { IServicesPathwayNode } from "@/lib/models/ServicesPathway";
 
 const columns = [
   {
@@ -121,9 +122,10 @@ const services = [
 
 type ServicesViewProps = {
   heroContent?: Partial<HeroProps>;
+  pathwayServices?: IServicesPathwayNode[];
 };
 
-export default function ServicesView({ heroContent }: ServicesViewProps) {
+export default function ServicesView({ heroContent, pathwayServices = [] }: ServicesViewProps) {
   const eyebrow = heroContent?.eyebrow || "Services";
   const title = heroContent?.title || "Digital services, end to end";
   const description =
@@ -451,7 +453,7 @@ export default function ServicesView({ heroContent }: ServicesViewProps) {
         </div>
       </div>
     </section>
-    <Ser/>
+    <Ser services={pathwayServices} />
 
     <Footer/>
 
