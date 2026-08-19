@@ -299,7 +299,7 @@ export default function ServicesPathway() {
               ref={(el) => {
                 orbitRefs.current[i] = el;
               }}
-              className="mx-auto flex justify-center [&_img]:transition-transform [&_img]:duration-300 [&_img:hover]:scale-[3]"
+              className="mx-auto w-full max-w-2xl aspect-square [&_img]:transition-transform [&_img]:duration-300 [&_img:hover]:scale-[3]"
             >
               <OrbitImages
                 images={service.tools.map((t) => t.logoUrl)}

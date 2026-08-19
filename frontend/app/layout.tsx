@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import { Space_Grotesk } from "next/font/google";
+import { link } from "fs";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
