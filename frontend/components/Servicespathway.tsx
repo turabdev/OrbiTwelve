@@ -219,21 +219,22 @@ export default function ServicesPathway({
               ref={(el) => {
                 orbitRefs.current[i] = el;
               }}
-              className="mx-auto w-full max-w-2xl aspect-square [&_img]:transition-transform [&_img]:duration-300 [&_img:hover]:scale-[3]"
+              className="mx-auto w-full max-w-4xl aspect-square [&_img]:transition-transform [&_img]:duration-300 [&_img:hover]:scale-[3]"
             >
               <OrbitImages
                 images={service.tools.map((t) => t.logoUrl)}
                 altPrefix={`${service.title} tool logo`}
                 shape="ellipse"
-                radiusX={380}
-                radiusY={180}
-                rotation={-32}
-                duration={30}
+                radiusX={680}
+                radiusY={280}
+                rotation={-20}
+                duration={20}
                 itemSize={service.orbitSize}
                 responsive
                 direction="normal"
                 fill
                 showPath
+          pathColor="#0FB0CC"
                 paused={false}
                 centerContent={
                   <div className="max-w-xs px-4 text-center">
@@ -257,7 +258,7 @@ export default function ServicesPathway({
             {/* Project cards — moved to their own full-width row below the
                 ring, per layout decision (grid collapsed from 2-col to
                 stacked once cards moved out of the copy column). */}
-            <div className="grid gap-4 mt-20 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               {service.projects.map((project) => (
                 <a
                   key={project.title}
