@@ -10,6 +10,7 @@ import PortfolioCarousel from "@/components/ProjectCarousel";
 import { connectDB } from "@/lib/utils/db";
 import SiteContent from "@/lib/models/SiteContent";
 import type { HeroProps } from "@/types/portfolios";
+import { serialize } from "@/lib/utils/serialize";
 import Service, { IService } from "@/lib/models/Service";
 
 async function getHeroContent(): Promise<HeroProps | undefined> {
@@ -23,7 +24,7 @@ async function getServices(): Promise<IService[]> {
   const docs = await Service.find({ published: true })
     .sort({ order: 1 })
     .lean();
-  return docs as unknown as IService[];
+  return serialize<IService[]>(docs);
 }
 
 export default async function Home() {

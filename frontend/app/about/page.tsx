@@ -10,6 +10,7 @@ import SiteContent from "@/lib/models/SiteContent";
 import { connectDB } from "@/lib/utils/db";
 import TeamProfileGrid from "@/components/TeamProfileGrid";
 import type { HeroProps } from "@/types/portfolios";
+import { serialize } from "@/lib/utils/serialize";
 
 export default async function About() {
   await connectDB();
@@ -67,7 +68,7 @@ export default async function About() {
       </section>
 
       <AboutServices services={services} />
-      <TeamProfileGrid team={JSON.parse(JSON.stringify(team))} />
+      <TeamProfileGrid team={serialize(team)} />
 
       <section className="px-6 py-20">
         <div className="mx-auto max-w-6xl">
