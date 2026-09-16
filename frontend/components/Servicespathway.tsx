@@ -15,10 +15,6 @@ gsap.registerPlugin(ScrollTrigger);
 // + gsap.ticker — see SmoothScrollProvider.tsx.
 // ──────────────────────────────────────────────────────────────────────
 
-// Gradient stops, top to bottom, per the client spec. Kept as a constant so
-// there's exactly one place to edit if the palette changes.
-const GRADIENT_COLORS = ["#00ADD3", "#323232", "#FFFFFF"];
-
 // This component is now presentational, matching Hero.tsx's pattern —
 // data comes in as a prop from a server-fetching parent, this file owns
 // zero fetch logic. Previously had a hardcoded `services` array here
@@ -35,15 +31,13 @@ export default function ServicesPathway({
 }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
-  const gradientRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
   const orbitRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const section = sectionRef.current;
     const path = pathRef.current;
-    const gradient = gradientRef.current;
-    if (!section || !path || !gradient) return;
+    if (!section || !path) return;
     // Guard against an empty/not-yet-loaded services array — the GSAP
     // setup below assumes at least one node exists (buildWindingPath,
     // the pin loop). Without this, a loading state or an empty CMS
@@ -54,10 +48,10 @@ export default function ServicesPathway({
       // ── ORDER MATTERS HERE ──────────────────────────────────────────
       // Pins (below) each add scroll-distance via pinSpacing, which
       // inflates the page's real scrollable height beyond what `section`
-      // measures on its own. The path-draw and gradient scrubs use
-      // `end: "bottom bottom"` against `section` — if that gets computed
-      // BEFORE the pins exist, it locks in the smaller pre-pin height.
-      // Fix: create the pins FIRST, then the section-wide scrubs, then
+      // measures on its own. The path-draw scrub uses `end: "bottom bottom"`
+      // against `section` — if that gets computed BEFORE the pins exist,
+      // it locks in the smaller pre-pin height.
+      // Fix: create the pins FIRST, then the section-wide scrub, then
       // force ScrollTrigger.refresh() so `bottom bottom` recalculates
       // against the final, pin-inflated page height.
 
@@ -134,23 +128,8 @@ export default function ServicesPathway({
         },
       });
 
-      gsap.fromTo(
-        gradient,
-        { "--gradient-progress": 0 },
-        {
-          "--gradient-progress": 1,
-          ease: "none",
-          scrollTrigger: {
-            trigger: section,
-            start: "top top",
-            end: "bottom bottom",
-            scrub: true,
-          },
-        }
-      );
-
-      // All ScrollTrigger instances now exist (pins + the two section-wide
-      // scrubs). Force a recalculation against the FINAL page geometry.
+      // All ScrollTrigger instances now exist (pins + the section-wide
+      // path scrub). Force a recalculation against the FINAL page geometry.
       // refresh(true) — not the bare call — waits ~1 rAF tick so pin-spacer
       // geometry is fully settled before positions recalculate.
       ScrollTrigger.refresh(true);
@@ -171,21 +150,6 @@ export default function ServicesPathway({
       className="relative w-full"
       style={{ background: "var(--background)" }}
     >
-      <div
-        ref={gradientRef}
-        className="pointer-events-none fixed inset-0 -z-10"
-        style={
-          {
-            "--gradient-progress": 0,
-            background: `linear-gradient(to bottom,
-              ${GRADIENT_COLORS[0]} calc((var(--gradient-progress) - 0.15) * 100%),
-              ${GRADIENT_COLORS[1]} calc(var(--gradient-progress) * 100%),
-              ${GRADIENT_COLORS[2]} calc((var(--gradient-progress) + 0.15) * 100%)
-            )`,
-          } as React.CSSProperties
-        }
-      />
-
       <svg
         className="pointer-events-none absolute left-1/2 top-0 h-full w-40 -translate-x-1/2"
         viewBox={`0 0 200 ${services.length * 1000}`}
@@ -195,8 +159,8 @@ export default function ServicesPathway({
         <path
           ref={pathRef}
           d={buildWindingPath(services.length)}
-          stroke="var(--color-accent)"
-          strokeWidth={3}
+          stroke="#0FB0CC"
+          strokeWidth={5}
           strokeLinecap="round"
         />
       </svg>
@@ -208,7 +172,7 @@ export default function ServicesPathway({
             nodeRefs.current[i] = el;
           }}
           id={service.serviceId}
-          className="relative flex min-h-screen w-full items-center justify-center px-6 md:px-16"
+          className="relative flex h-lg w-full items-center justify-center px-6 md:px-16"
         >
           <div className="mx-auto flex w-full max-w-5xl flex-col gap-10">
             {/* Ring + nested copy — the service is the epicenter, tool
@@ -234,7 +198,7 @@ export default function ServicesPathway({
                 direction="normal"
                 fill
                 showPath
-          pathColor="#0FB0CC"
+                pathColor="#0FB0CC"
                 paused={false}
                 centerContent={
                   <div className="max-w-xs px-4 text-center">
@@ -288,7 +252,7 @@ export default function ServicesPathway({
  */
 function buildWindingPath(count: number): string {
   const segmentHeight = 1000;
-  let d = `M 100 0`;
+  let d = `M 300 0`;
 
   for (let i = 0; i < count; i++) {
     const midY = i * segmentHeight + segmentHeight / 2;

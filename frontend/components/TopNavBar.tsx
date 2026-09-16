@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import Logo from "@/assets/images/logos/logo.webp";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const navLinks = [
   { label: "About", href: "/about" },
@@ -82,6 +83,7 @@ export default function TopNavBar() {
                 {link.label}
               </Link>
             ))}
+            <ThemeToggle />
           </nav>
 
           {/* Mobile hamburger */}
@@ -116,15 +118,18 @@ export default function TopNavBar() {
         >
           <div className="flex items-center justify-between h-16.75 px-6.25 border-b border-[#00ADD3]/30">
             <Image src={Logo} alt="Logo" width={140} height={30} className="h-8 w-auto" />
-            <button
-              type="button"
-              onClick={() => setDrawerOpen(false)}
-              aria-label="Close menu"
-              className="relative w-8 h-8 shrink-0"
-            >
-              <span className="absolute top-1/2 left-1/2 w-5 h-0.5 bg-(--color-dark-panel) -translate-x-1/2 -translate-y-1/2 rotate-45" />
-              <span className="absolute top-1/2 left-1/2 w-5 h-0.5 bg-(--color-dark-panel) -translate-x-1/2 -translate-y-1/2 -rotate-45" />
-            </button>
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                aria-label="Close menu"
+                className="relative w-8 h-8 shrink-0"
+              >
+                <span className="absolute top-1/2 left-1/2 w-5 h-0.5 bg-(--color-dark-panel) -translate-x-1/2 -translate-y-1/2 rotate-45" />
+                <span className="absolute top-1/2 left-1/2 w-5 h-0.5 bg-(--color-dark-panel) -translate-x-1/2 -translate-y-1/2 -rotate-45" />
+              </button>
+            </div>
           </div>
           <nav className="flex flex-col px-6.25 py-8 gap-1">
             {navLinks.map((link) => (
