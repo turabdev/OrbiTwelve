@@ -3,10 +3,17 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import type { AboutStatsFields } from "@/components/AboutStats";
+import type { AboutPvmFields } from "@/components/AboutPvm";
 
 type Tab = "stats" | "vision" | "services";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
+
+const emptyPvm: AboutPvmFields = {
+  purpose: "",
+  vision: "",
+  mission: "",
+};
 
 const emptyStats: AboutStatsFields = {
   founded: 2020,
@@ -20,9 +27,43 @@ const emptyStats: AboutStatsFields = {
 export default function AboutDashboardPage() {
   const [tab, setTab] = useState<Tab>("stats");
   const [statsForm, setStatsForm] = useState<AboutStatsFields>(emptyStats);
+  const [pvmForm, setPvmForm] = useState<AboutPvmFields>(emptyPvm);
+  const [pvmSaveState, setPvmSaveState] = useState<SaveState>("idle");
+  const [pvmError, setPvmError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (tab !== "vision") return;
+    let cancelled = false;
+
+    async function load() {
+      setLoading(true);
+      setPvmError(null);
+      try {
+        const res = await fetch("/api/content/about-pvm");
+        if (res.status === 404) {
+          if (!cancelled) setPvmForm(emptyPvm);
+          return;
+        }
+        if (!res.ok) throw new Error(`Failed to load (${res.status})`);
+        const data = await res.json();
+        if (!cancelled) setPvmForm({ ...emptyPvm, ...data.fields });
+      } catch (err) {
+        if (!cancelled) {
+          setPvmError(err instanceof Error ? err.message : "Failed to load vision content");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [tab]);
 
   useEffect(() => {
     if (tab !== "stats") return;
@@ -54,6 +95,35 @@ export default function AboutDashboardPage() {
       cancelled = true;
     };
   }, [tab]);
+
+  function updatePvm(key: keyof AboutPvmFields, value: string) {
+    setPvmForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function handlePvmSubmit(e: FormEvent) {
+    e.preventDefault();
+    setPvmSaveState("saving");
+    setPvmError(null);
+
+    try {
+      const res = await fetch("/api/content/about-pvm", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pvmForm),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? `Save failed (${res.status})`);
+      }
+
+      setPvmSaveState("saved");
+      setTimeout(() => setPvmSaveState("idle"), 2000);
+    } catch (err) {
+      setPvmSaveState("error");
+      setPvmError(err instanceof Error ? err.message : "Save failed");
+    }
+  }
 
   function updateStat(key: keyof AboutStatsFields, value: string) {
     setStatsForm((prev) => ({ ...prev, [key]: Number(value) || 0 }));
@@ -166,11 +236,60 @@ export default function AboutDashboardPage() {
           </form>
         ))}
 
-      {tab === "vision" && (
-        <p className="py-8 text-sm text-muted-foreground">
-          Vision tab coming next.
-        </p>
-      )}
+      {tab === "vision" &&
+        (loading ? (
+          <div className="flex h-64 items-center justify-center text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin" />
+          </div>
+        ) : (
+          <form onSubmit={handlePvmSubmit} className="space-y-6">
+            <Field label="Purpose">
+              <textarea
+                value={pvmForm.purpose}
+                onChange={(e) => updatePvm("purpose", e.target.value)}
+                rows={3}
+                className={inputClass}
+              />
+            </Field>
+            <Field label="Vision">
+              <textarea
+                value={pvmForm.vision}
+                onChange={(e) => updatePvm("vision", e.target.value)}
+                rows={3}
+                className={inputClass}
+              />
+            </Field>
+            <Field label="Mission">
+              <textarea
+                value={pvmForm.mission}
+                onChange={(e) => updatePvm("mission", e.target.value)}
+                rows={3}
+                className={inputClass}
+              />
+            </Field>
+
+            <div className="flex items-center gap-3 border-t border-border pt-6">
+              <button
+                type="submit"
+                disabled={pvmSaveState === "saving"}
+                className="rounded-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                {pvmSaveState === "saving" ? "Saving…" : "Save changes"}
+              </button>
+
+              {pvmSaveState === "saved" && (
+                <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <CheckCircle2 size={16} className="text-green-600" /> Saved
+                </span>
+              )}
+              {pvmSaveState === "error" && (
+                <span className="flex items-center gap-1.5 text-sm text-destructive">
+                  <AlertCircle size={16} /> {pvmError}
+                </span>
+              )}
+            </div>
+          </form>
+        ))}
       {tab === "services" && (
         <p className="py-8 text-sm text-muted-foreground">
           Services tab coming next.

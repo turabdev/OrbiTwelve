@@ -4,6 +4,7 @@ import AboutStats from "@/components/AboutStats";
 import AboutServices from "@/components/AboutServices";
 import { services } from "@/app/lib/about-content";
 import type { AboutStatsFields } from "@/components/AboutStats";
+import AboutPvm, { type AboutPvmFields } from "@/components/AboutPvm";
 import Hero from "@/components/Hero";
 import CeoVideo from "@/components/CeoVideo";
 import TeamMember from "@/lib/models/TeamMember";
@@ -30,6 +31,19 @@ export default async function About() {
     ...defaultStats,
     ...(statsContent?.fields as Partial<AboutStatsFields> | undefined),
   };
+  const pvmContent = await SiteContent.findOne({ key: "about-pvm" }).lean();
+  const defaultPvm: AboutPvmFields = {
+    purpose:
+      "Empowering our clients to achieve sustainable digital growth through creativity, intelligence, and security — where innovation meets trust.",
+    vision:
+      "To shape the future of digital excellence through innovation, integrity, and intelligent data.",
+    mission:
+      "To empower people, organizations, and systems through secure and scalable digital transformation.",
+  };
+  const pvmFields = {
+    ...defaultPvm,
+    ...(pvmContent?.fields as Partial<AboutPvmFields> | undefined),
+  };
   const heroProps = (heroContent?.fields ?? {}) as Partial<HeroProps>;
 
   return (
@@ -49,37 +63,7 @@ export default async function About() {
         description="A short message from our CEO on what drives Orbitwelve's approach to digital growth — and what to expect when you work with us."
       />
 
-      <section className="px-6 py-20">
-        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-3">
-          <div className="rounded-3xl border border-dark-panel/10 p-8">
-            <h3 className="text-lg font-medium tracking-tight text-(--color-dark-panel)">
-              Our Purpose
-            </h3>
-            <p className="mt-3 text-sm leading-relaxed text-dark-panel/70">
-              Empowering our clients to achieve sustainable digital growth through creativity,
-              intelligence, and security — where innovation meets trust.
-            </p>
-          </div>
-          <div className="rounded-3xl border border-dark-panel/10 p-8">
-            <h3 className="text-lg font-medium tracking-tight text-(--color-dark-panel)">
-              Our Vision
-            </h3>
-            <p className="mt-3 text-sm leading-relaxed text-dark-panel/70">
-              To shape the future of digital excellence through innovation, integrity, and
-              intelligent data.
-            </p>
-          </div>
-          <div className="rounded-3xl border border-dark-panel/10 p-8">
-            <h3 className="text-lg font-medium tracking-tight text-(--color-dark-panel)">
-              Our Mission
-            </h3>
-            <p className="mt-3 text-sm leading-relaxed text-dark-panel/70">
-              To empower people, organizations, and systems through secure and scalable
-              digital transformation.
-            </p>
-          </div>
-        </div>
-      </section>
+      <AboutPvm fields={pvmFields} />
 
       <AboutServices services={services} />
       <TeamProfileGrid team={serialize(team)} />
