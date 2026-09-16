@@ -2,7 +2,8 @@ import TopNavBar from "@/components/TopNavBar";
 import Footer from "@/components/footer";
 import AboutStats from "@/components/AboutStats";
 import AboutServices from "@/components/AboutServices";
-import { stats, services } from "@/app/lib/about-content";
+import { services } from "@/app/lib/about-content";
+import type { AboutStatsFields } from "@/components/AboutStats";
 import Hero from "@/components/Hero";
 import CeoVideo from "@/components/CeoVideo";
 import TeamMember from "@/lib/models/TeamMember";
@@ -16,6 +17,19 @@ export default async function About() {
   await connectDB();
   const team = await TeamMember.find().sort({ order: 1 }).lean();
   const heroContent = await SiteContent.findOne({ key: "about-hero" }).lean();
+  const statsContent = await SiteContent.findOne({ key: "about-stats" }).lean();
+  const defaultStats: AboutStatsFields = {
+    founded: 2020,
+    clients: 450,
+    projects: 300,
+    industries: 15,
+    countries: 20,
+    employees: 10,
+  };
+  const statsFields = {
+    ...defaultStats,
+    ...(statsContent?.fields as Partial<AboutStatsFields> | undefined),
+  };
   const heroProps = (heroContent?.fields ?? {}) as Partial<HeroProps>;
 
   return (
@@ -25,7 +39,7 @@ export default async function About() {
         <Hero {...heroProps} />
       </div>
 
-      <AboutStats stats={stats} />
+      <AboutStats fields={statsFields} />
 
       <CeoVideo
         videoUrl="https://youtuDmhhsteSc.be/K-"
