@@ -113,7 +113,7 @@ export default function Footer() {
           </Link>
         </div>
 
-        <p>© 2026 Zypher Agency. All rights reserved.</p>
+        <p>© 2026 Orbitwelve. All rights reserved.</p>
       </div>
     </footer>
   );

@@ -36,10 +36,10 @@ export default async function Contact() {
                 <div className="mt-10 space-y-1">
                   <p className="text-xs uppercase tracking-[0.18em] text-background/50">Email</p>
                   <a
-                    href="mailto:hello@zypher.example"
+                    href="mailto:contact@orbitwelve.com"
                     className="text-xl font-medium tracking-tight transition-opacity hover:opacity-70"
                   >
-                    hello@zypher.example
+                    contact@orbitwelve.com
                   </a>
                 </div>
               </div>

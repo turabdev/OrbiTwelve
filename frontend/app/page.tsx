@@ -10,6 +10,7 @@ import PortfolioCarousel from "@/components/ProjectCarousel";
 import { connectDB } from "@/lib/utils/db";
 import SiteContent from "@/lib/models/SiteContent";
 import type { HeroProps } from "@/types/portfolios";
+import Service, { IService } from "@/lib/models/Service";
 
 async function getHeroContent(): Promise<HeroProps | undefined> {
   await connectDB();
@@ -17,8 +18,19 @@ async function getHeroContent(): Promise<HeroProps | undefined> {
   return doc?.fields as HeroProps | undefined;
 }
 
+async function getServices(): Promise<IService[]> {
+  await connectDB();
+  const docs = await Service.find({ published: true })
+    .sort({ order: 1 })
+    .lean();
+  return docs as unknown as IService[];
+}
+
 export default async function Home() {
-  const heroContent = await getHeroContent();
+  const [heroContent, services] = await Promise.all([
+    getHeroContent(),
+    getServices(),
+  ]);
 
   return (
     <div className="relative">
@@ -50,10 +62,11 @@ export default async function Home() {
 
       <RollingStats
         items={[
-          { value: "5+", label: "Projects delivered" },
-          { value: "3+", label: "Years building" },
-          { value: "12+", label: "Repeat clients" },
-          { value: "100%", label: "On-time delivery" },
+          { value: "450+", label: "Clients served" },
+          { value: "300+", label: "Projects delivered" },
+          { value: "15+", label: "Industries" },
+          { value: "20+", label: "Countries" },
+          { value: "10+", label: "Employees" },
         ]}
       />
       
@@ -81,7 +94,7 @@ export default async function Home() {
         ]}
       />
 
-      <div className="mb-32" ><ServiceCardSection /></div> 
+      <div className="mb-32" ><ServiceCardSection services={services} /></div> 
       <PortfolioCarousel
         section={{
           eyebrow: "Selected Work",
@@ -90,28 +103,28 @@ export default async function Home() {
         }}
         items={[
           {
-            slug: "demo-project",
+            slug: "demo-project-1",
             title: "Demo Project",
             category: "Web",
             media: "https://picsum.photos/seed/orbitwelve-project-1/800/1100",
           },
           {
-            slug: "demo-project",
+            slug: "demo-project-2",
             title: "Demo Project",
             category: "Web",
-            media: "https://picsum.photos/seed/orbitwelve-project-1/800/1100",
+            media: "https://picsum.photos/seed/orbitwelve-project-2/800/1100",
           },
           {
-            slug: "demo-project",
+            slug: "demo-project-3",
             title: "Demo Project",
             category: "Web",
-            media: "https://picsum.photos/seed/orbitwelve-project-1/800/1100",
+            media: "https://picsum.photos/seed/orbitwelve-project-3/800/1100",
           },
           {
-            slug: "demo-project",
+            slug: "demo-project-4",
             title: "Demo Project",
             category: "Web",
-            media: "https://picsum.photos/seed/orbitwelve-project-1/800/1100",
+            media: "https://picsum.photos/seed/orbitwelve-project-4/800/1100",
           },
         ]}
       />

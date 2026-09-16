@@ -6,21 +6,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const SERVICES: { title: string; description: string }[] = [
-  { title: "Social Media Management", description: "PLACEHOLDER_COPY" },
-  { title: "Digital Marketing", description: "PLACEHOLDER_COPY" },
-  { title: "Android App Development", description: "PLACEHOLDER_COPY" },
-  { title: "Web Development", description: "PLACEHOLDER_COPY" },
-  { title: "Graphic Designing", description: "PLACEHOLDER_COPY" },
-  { title: "Video Editing", description: "PLACEHOLDER_COPY" },
-  { title: "Academic Research Writing", description: "PLACEHOLDER_COPY" },
-  { title: "SEO Management", description: "PLACEHOLDER_COPY" },
-  { title: "Lead Generation", description: "PLACEHOLDER_COPY" },
-  { title: "Cybersecurity & Intelligence", description: "PLACEHOLDER_COPY" },
- 
-];
+import type { IService } from "@/lib/models/Service";
 
-export default function ServiceCardSection() {
+export default function ServiceCardSection({ services }: { services: IService[] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -73,9 +61,9 @@ export default function ServiceCardSection() {
         ref={trackRef}
         className="flex w-max gap-6 px-6 will-change-transform md:px-12"
       >
-        {SERVICES.map((service, i) => (
+        {services.map((service, i) => (
           <div
-            key={service.title}
+            key={service.slug}
             className="flex h-105 w-[320px] shrink-0 flex-col justify-between rounded-2xl border border-(--color-dark-panel) bg-(--color-dark-panel) p-8 md:w-95"
           >
             <span className="text-sm text-(--color-accent)">
